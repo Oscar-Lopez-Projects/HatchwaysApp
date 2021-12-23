@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, createRef} from 'react'
 import axios from 'axios';
 import '../styling/StudentCard.css';
 
@@ -6,8 +6,27 @@ const CardList = () =>{
 
     const [items, setItems]= useState([]);
     const [searchInput, setSearchInput]= useState('');
-    const [show,setShow]= useState(false);
-    const [button,setButton] =useState(false);
+    /**this displays the current tags */
+    const [tags, setTags]= useState([]);
+    /** this displays the input tag value */
+    const [inputTag,setInputTag]= useState(" ")
+
+
+    
+
+
+
+
+  const showGrades = (e)=>{
+      const sibClass = e.target.previousSibling.lastChild.classList;
+      sibClass.toggle('hide');
+        if (sibClass.contains('hide')) {
+            e.target.innerHTML = '&plus;';
+         } else {
+             e.target.innerHTML = '&minus;';
+    }
+  }
+  
 
     useEffect(()=>{
         axios
@@ -38,48 +57,48 @@ const CardList = () =>{
                     return val
                 }
                 
-            }).map((card, key)=>{
+            }).map((card, index)=>{
                 //find the average total grade
                 const fullName = card.firstName + ' ' + card.lastName;
     
                 const avg = card.grades.reduce((sum, curr)=>sum + Number(curr), 0) / card.grades.length;
                 return(
-                    <div  className='flexbox-div' key={key}>
+                    <div  className='flexbox-div' key={index}>
 
                         <div className='student-photo-div'>
                             <img className='students-img-size'  src={card.pic} alt ="student-photo"/>
                         </div>
 
-                        <div className='card-basic-info' key={card.key}>
-                            <div className='div-div'>
+                        <div className='card-basic-info' key={index}>
                                 <h1 className='full-capitalize'>{fullName}</h1>
                                 <p>Email: {card.email}</p>
                                 <p>Company: {card.company}</p>
                                 <p>Skills: {card.skill}</p>
                                 <p>Average: {avg} </p>
-                                {show?
-                                <div>
-                                    <p>Test 1: {card.grades[0]}%</p>
-                                    <p>Test 2: {card.grades[1]}%</p>
-                                    <p>Test 3: {card.grades[2]}%</p>
-                                    <p>Test 4: {card.grades[3]}%</p>
-                                    <p>Test 5: {card.grades[4]}%</p>
-                                    <p>Test 6: {card.grades[5]}%</p>
-                                    <p>Test 7: {card.grades[6]}%</p>
-                                    <p>Test 8: {card.grades[7]}%</p>
-                                </div>:null
-                                    }   
+                                {tags.map((tag,index)=>(
+                                   <li key={index}>
+                                   <span>{tag}</span>
+                                   <i className="material-icons">close</i>
+                               </li>
+                                ))}
+                                
+                                <input
+                type="text"
+                placeholder="Press enter to add tags"
+                
+            />
+                                <div className="gradeList hide">
+                                {card.grades.map((grade, index) => (
+                                    <p key={index}>
+                                    Test {(index += 1)}: {grade}%
+                                    </p>
+                                ))}
+                                </div>
                             </div>
-                            {!show ?
-                            <div className='button-info'>
-                               <button className='hide-button' onClick={()=> setShow((prev)=>!prev)}>show</button>
-                            </div> : <div className='button-info'>
-                                         <button className='hide-button' onClick={()=> setShow((prev)=>!prev)}>hide</button>
-                                     </div>
-            }
+                        <div className="expand-btn" onClick={showGrades}>
+                            +
                         </div>
                     </div>
-                    
                 )
             })}
         </div>
