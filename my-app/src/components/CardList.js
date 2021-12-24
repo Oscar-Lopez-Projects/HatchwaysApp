@@ -1,33 +1,37 @@
 import React, {useState, useEffect, createRef} from 'react'
 import axios from 'axios';
 import '../styling/StudentCard.css';
+import ToDoList from './ToDoList';
+import ToDoForm from './ToDoForm';
 
 const CardList = () =>{
 
+    //students info
     const [items, setItems]= useState([]);
+
+    //filter search data
     const [searchInput, setSearchInput]= useState('');
-    /**this displays the current tags */
-    const [tags, setTags]= useState([]);
-    /** this displays the input tag value */
-    const [inputTag,setInputTag]= useState(" ")
-
-
     
-
-
-
-
-  const showGrades = (e)=>{
+    //toggle to show and hide all grades
+    const showGrades = (e)=>{
       const sibClass = e.target.previousSibling.lastChild.classList;
       sibClass.toggle('hide');
         if (sibClass.contains('hide')) {
             e.target.innerHTML = '&plus;';
          } else {
              e.target.innerHTML = '&minus;';
+        }
     }
-  }
+ 
+    /* Tags data */
+    const [ toDoList, setToDoList ] = useState([])
+    const addTask = (userInput ) => {
+        let copy = [...toDoList];
+        copy = [...copy, { id: toDoList.length + 1, task: userInput, complete: false }];
+        setToDoList(copy);
+    }
   
-
+    //calling the Api
     useEffect(()=>{
         axios
         .get("https://api.hatchways.io/assessment/students")
@@ -75,18 +79,10 @@ const CardList = () =>{
                                 <p>Company: {card.company}</p>
                                 <p>Skills: {card.skill}</p>
                                 <p>Average: {avg} </p>
-                                {tags.map((tag,index)=>(
-                                   <li key={index}>
-                                   <span>{tag}</span>
-                                   <i className="material-icons">close</i>
-                               </li>
-                                ))}
-                                
-                                <input
-                type="text"
-                placeholder="Press enter to add tags"
-                
-            />
+                        <ToDoList toDoList={toDoList}/>
+                        <ToDoForm addTask={addTask}/>
+
+                            
                                 <div className="gradeList hide">
                                 {card.grades.map((grade, index) => (
                                     <p key={index}>
@@ -98,6 +94,7 @@ const CardList = () =>{
                         <div className="expand-btn" onClick={showGrades}>
                             +
                         </div>
+                        
                     </div>
                 )
             })}
